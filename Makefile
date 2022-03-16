@@ -3,7 +3,6 @@ CUDA=			$(shell dirname `dirname \`which nvcc\``)
 #CUDA=			/usr/local/cuda
 CUDA_INCLUDE=		$(shell dirname `find $(CUDA) -name cuda.h`)
 CUDA_LIBDIR=		$(shell dirname `find $(CUDA) -name libcuda.so`|head -n1)
-NVRTC_INCLUDE=		$(shell dirname `find $(CUDA) -name nvrtc.h`)
 NVRTC_LIBDIR=		$(shell dirname `find $(CUDA) -name libnvrtc.so`|head -n1)
 #POWER_SENSOR=		$(HOME)/projects/libpowersensor-master/build
 ARCH=			$(shell arch)
@@ -11,16 +10,14 @@ CC=			gcc
 CXX=			g++ #-Wno-deprecated-declarations
 NVCC=			nvcc
 INCLUDES=		-I.
-INCLUDES+=		-I$(CUDA_INCLUDE) -I$(NVRTC_INCLUDE)
+INCLUDES+=		-I$(CUDA_INCLUDE)
 #INCLUDES+=		-I$(POWER_SENSOR)/include
 CXXFLAGS+=		-std=c++11 -O3 -g -fpic -fopenmp $(INCLUDES) -DNDEBUG
 NVCCFLAGS=		$(INCLUDES)
 
 #CXXFLAGS+=		-march=core-avx2 -mcmodel=medium
 
-LIBTCC_SOURCES=		util/cu.cc\
-			util/nvrtc.cc\
-			libtcc/CorrelatorKernel.cc\
+LIBTCC_SOURCES=		libtcc/CorrelatorKernel.cc\
 			libtcc/Correlator.cc\
 			libtcc/Kernel.cc
 
@@ -53,8 +50,14 @@ EXECUTABLES=		test/SimpleExample/SimpleExample\
 			test/CorrelatorTest/CorrelatorTest\
 			test/OpenCLCorrelatorTest/OpenCLCorrelatorTest
 
+CUDA_WRAPPERS_DIR=       external/cuda-wrappers
+CUDA_WRAPPERS_LIB=        $(CUDA_WRAPPERS_DIR)/libcu.so
+CUDA_WRAPPERS_INCLUDE=    $(CUDA_WRAPPERS_DIR)/cu
+#LIBTCC_OBJECTS+=         $(CUDA_WRAPPERS_LIB)
+
 LIBRARIES=		-L$(CUDA_LIBDIR) -lcuda\
-			-L$(NVRTC_LIBDIR) -lnvrtc #\
+			$(CUDA_WRAPPERS_LIB) \
+			-L$(NVRTC_LIBDIR) -lnvrtc
 			#-L$(POWER_SENSOR)/lib -lpowersensor #-lnvidia-ml
 
 
@@ -82,13 +85,17 @@ all::			$(EXECUTABLES)
 clean::
 			$(RM) $(OBJECTS) $(SHARED_OBJECTS) $(DEPENDENCIES) $(EXECUTABLES)
 
+$(CUDA_WRAPPERS_LIB):
+			cd $(CUDA_WRAPPERS_DIR) && cmake .
+			cd $(CUDA_WRAPPERS_DIR) && CPATH=$(CPATH):$(CUDA_INCLUDE) make
+
 libtcc/TCCorrelator.o:	libtcc/TCCorrelator.cu	# CUDA code embedded in object file
 			ld -r -b binary -o $@ $<
 
 libtcc/TCCorrelator.d:
 			-
 
-libtcc/libtcc.so.$(VERSION):		$(LIBTCC_OBJECTS)
+libtcc/libtcc.so.$(VERSION):		$(LIBTCC_OBJECTS) $(CUDA_WRAPPERS_LIB)
 			$(CXX) -shared -o $@ $^ $(LIBRARIES)
 
 test/SimpleExample/SimpleExample:		$(SIMPLE_EXAMPLE_OBJECTS) libtcc/libtcc.so
