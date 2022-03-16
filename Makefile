@@ -51,13 +51,13 @@ EXECUTABLES=		test/SimpleExample/SimpleExample\
 			test/OpenCLCorrelatorTest/OpenCLCorrelatorTest
 
 CUDA_WRAPPERS_DIR=       external/cuda-wrappers
-CUDA_WRAPERS_LIB=        ${CUDA_WRAPPERS_DIR}/libcu.so
-CUDA_WRAPERS_INCLUDE=    ${CUDA_WRAPPERS_DIR}/cu
-#LIBTCC_OBJECTS+=         ${CUDA_WRAPERS_LIB}
+CUDA_WRAPPERS_LIB=        $(CUDA_WRAPPERS_DIR)/libcu.so
+CUDA_WRAPPERS_INCLUDE=    $(CUDA_WRAPPERS_DIR)/cu
+#LIBTCC_OBJECTS+=         $(CUDA_WRAPPERS_LIB)
 
 LIBRARIES=		-L$(CUDA_LIBDIR) -lcuda\
-			${CUDA_WRAPERS_LIB} \
-			-L${NVRTC_LIBDIR} -lnvrtc
+			$(CUDA_WRAPPERS_LIB) \
+			-L$(NVRTC_LIBDIR) -lnvrtc
 			#-L$(POWER_SENSOR)/lib -lpowersensor #-lnvidia-ml
 
 
@@ -85,9 +85,9 @@ all::			$(EXECUTABLES)
 clean::
 			$(RM) $(OBJECTS) $(SHARED_OBJECTS) $(DEPENDENCIES) $(EXECUTABLES)
 
-${CUDA_WRAPERS_LIB}:
-			cd ${CUDA_WRAPPERS_DIR} && cmake .
-			cd ${CUDA_WRAPPERS_DIR} && CPATH=${CPATH}:${CUDA_INCLUDE} make
+$(CUDA_WRAPPERS_LIB):
+			cd $(CUDA_WRAPPERS_DIR) && cmake .
+			cd $(CUDA_WRAPPERS_DIR) && CPATH=$(CPATH):$(CUDA_INCLUDE) make
 
 libtcc/TCCorrelator.o:	libtcc/TCCorrelator.cu	# CUDA code embedded in object file
 			ld -r -b binary -o $@ $<
@@ -95,7 +95,7 @@ libtcc/TCCorrelator.o:	libtcc/TCCorrelator.cu	# CUDA code embedded in object fil
 libtcc/TCCorrelator.d:
 			-
 
-libtcc/libtcc.so.$(VERSION):		$(LIBTCC_OBJECTS)
+libtcc/libtcc.so.$(VERSION):		$(LIBTCC_OBJECTS) $(CUDA_WRAPPERS_LIB)
 			$(CXX) -shared -o $@ $^ $(LIBRARIES)
 
 test/SimpleExample/SimpleExample:		$(SIMPLE_EXAMPLE_OBJECTS) libtcc/libtcc.so
