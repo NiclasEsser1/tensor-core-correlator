@@ -11,6 +11,7 @@ CXX=			g++ #-Wno-deprecated-declarations
 NVCC=			nvcc
 INCLUDES=		-I.
 INCLUDES+=		-I$(CUDA_INCLUDE)
+#INCLUDES+=		-I$(CUDA_INCLUDE) -I$(NVRTC_INCLUDE)
 #INCLUDES+=		-I$(POWER_SENSOR)/include
 CXXFLAGS+=		-std=c++11 -O3 -g -fpic -fopenmp $(INCLUDES) -DNDEBUG
 NVCCFLAGS=		$(INCLUDES)
@@ -57,8 +58,8 @@ CUDA_WRAPPERS_INCLUDE=    $(CUDA_WRAPPERS_DIR)/cu
 
 LIBRARIES=		-L$(CUDA_LIBDIR) -lcuda\
 			$(CUDA_WRAPPERS_LIB) \
-			-L$(NVRTC_LIBDIR) -lnvrtc
-			#-L$(POWER_SENSOR)/lib -lpowersensor #-lnvidia-ml
+			-L$(NVRTC_LIBDIR) -lnvrtc #\
+			#-L$(POWER_SENSOR)/lib -lpowersensor -lnvidia-ml
 
 
 %.d:			%.cc
@@ -95,14 +96,14 @@ libtcc/TCCorrelator.o:	libtcc/TCCorrelator.cu	# CUDA code embedded in object fil
 libtcc/TCCorrelator.d:
 			-
 
-libtcc/libtcc.so.$(VERSION):		$(LIBTCC_OBJECTS) $(CUDA_WRAPPERS_LIB)
+libtcc/libtcc.so.$(VERSION):			$(LIBTCC_OBJECTS) $(CUDA_WRAPPERS_LIB)
 			$(CXX) -shared -o $@ $^ $(LIBRARIES)
 
 test/SimpleExample/SimpleExample:		$(SIMPLE_EXAMPLE_OBJECTS) libtcc/libtcc.so
-			$(NVCC) $(NVCCFLAGS) -o $@ $(SIMPLE_EXAMPLE_OBJECTS) -Xlinker -rpath=. -Llibtcc -ltcc $(LIBRARIES)
+			$(NVCC) $(NVCCFLAGS) -o $@ $(SIMPLE_EXAMPLE_OBJECTS) -Xlinker -rpath=$(CUDA_WRAPPERS_DIR) -Llibtcc -ltcc $(LIBRARIES)
 
-test/CorrelatorTest/CorrelatorTest:	$(CORRELATOR_TEST_OBJECTS) libtcc/libtcc.so
-			$(CXX) $(CXXFLAGS) -o $@ $(CORRELATOR_TEST_OBJECTS) -Wl,-rpath=. -Llibtcc -ltcc $(LIBRARIES)
+test/CorrelatorTest/CorrelatorTest:		$(CORRELATOR_TEST_OBJECTS) libtcc/libtcc.so
+			$(CXX) $(CXXFLAGS) -o $@ $(CORRELATOR_TEST_OBJECTS) -Wl,-rpath=$(CUDA_WRAPPERS_DIR) -Llibtcc -ltcc $(LIBRARIES)
 
 test/OpenCLCorrelatorTest/OpenCLCorrelatorTest:	$(OPENCL_TEST_OBJECTS)
 			$(CXX) $(CXXFLAGS) -o $@ $(OPENCL_TEST_OBJECTS) -L$(CUDA)/lib64 -lOpenCL
