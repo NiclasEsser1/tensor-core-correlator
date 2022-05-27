@@ -1,12 +1,12 @@
 #if !defined TCC_CORRELATOR_H
 #define TCC_CORRELATOR_H
 
-#include "libtcc/CorrelatorKernel.h"
-#include "external/cuda-wrappers/cu/cu.h"
-#include "external/cuda-wrappers/cu/nvrtc.h"
-
 #include <string>
 
+#include <cu.hpp>
+#include <nvrtc.hpp>
+
+#include "libtcc/CorrelatorKernel.h"
 
 namespace tcc {
   class Correlator {

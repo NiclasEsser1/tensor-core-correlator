@@ -244,7 +244,7 @@ cl::Program createProgramFromBinaries(cl::Context &context, std::vector<cl::Devi
 	    << " -DNR_POLARIZATIONS=" << NR_POLARIZATIONS
 	    << " -DNR_RECEIVERS_PER_BLOCK=" << NR_RECEIVERS_PER_BLOCK
 	    << " -o -"
-	    << " libtcc/TCCorrelator.cu"
+	    << " libtcc/kernel/TCCorrelator.cu"
 	    << "|sed -e s/.param\\ .[a-zA-Z0-9]*/\\&\\ .ptr\\ .global/";
 
     std::clog << "executing: " << command.str() << std::endl;
@@ -402,6 +402,7 @@ void checkTestPattern(cl::CommandQueue &queue, cl::Buffer &visibilitiesBuffer, c
 
 int main()
 {
+  int err{0};
   try {
     cl::Context             context;
     std::vector<cl::Device> devices;
@@ -443,9 +444,11 @@ for (int i = 0; i < 100; i ++)
     checkTestPattern(queue, visibilities, samples);
    } catch (cl::Error &error) {
      std::cerr << "caught cl::Error: " << error.what() << ": " << errorMessage(error.err()) << std::endl;
+     err = 1;
    } catch (std::exception &error) {
      std::cerr << "caught std::exception: " << error.what() << std::endl;
+     err = 1;
    }
 
-  return 0;
+  return err;
 }

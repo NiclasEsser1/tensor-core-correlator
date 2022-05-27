@@ -1,8 +1,9 @@
 #if !defined UNIT_TEST_H
 #define UNIT_TEST_H
 
+#include <cu.hpp>
+
 #include "test/Common/Record.h"
-#include "external/cuda-wrappers/cu/cu.h"
 
 #if defined MEASURE_POWER
 #include <powersensor/NVMLPowerSensor.h>

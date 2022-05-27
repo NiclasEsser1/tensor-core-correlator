@@ -1,0 +1,6 @@
+foreach(component Record UnitTest)
+  add_library(${component})
+  target_sources(${component} PRIVATE ${component}.cc)
+  target_include_directories(${component} PRIVATE ${CMAKE_SOURCE_DIR})
+  target_link_libraries(${component} PRIVATE cudawrappers::cu)
+endforeach()

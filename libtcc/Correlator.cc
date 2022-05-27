@@ -82,7 +82,9 @@ cu::Module Correlator::compileModule(unsigned nrBits,
   // embed the CUDA source code in libtcc.so, so that it need not be installed separately
   // for runtime compilation
   // copy into std::string for '\0' termination
-  std::string source(&_binary_libtcc_TCCorrelator_cu_start, &_binary_libtcc_TCCorrelator_cu_end);
+  const std::string source =
+#include "TCCorrelator.cu"
+  ;
   nvrtc::Program program(source, "TCCorrelator.cu");
 #endif
 

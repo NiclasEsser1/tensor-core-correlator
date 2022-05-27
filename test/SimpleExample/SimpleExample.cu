@@ -7,14 +7,14 @@
 #define NR_RECEIVERS_PER_BLOCK 64
 #define NR_TIMES_PER_BLOCK (128 / (NR_BITS))
 
-
-#include "test/Common/ComplexInt4.h"
-#include "libtcc/Correlator.h"
-
 #include <complex>
 #include <iostream>
 
 #include <cuda.h>
+
+#include "test/Common/ComplexInt4.h"
+#include "libtcc/Correlator.h"
+
 #if NR_BITS == 16
 #include <cuda_fp16.h>
 #endif
@@ -46,6 +46,7 @@ typedef Visibility Visibilities[NR_CHANNELS][NR_BASELINES][NR_POLARIZATIONS][NR_
 
 int main()
 {
+  int err{0};
   try {
     checkCudaCall(cudaSetDevice(0)); // combine the CUDA runtime API and CUDA driver API
     checkCudaCall(cudaFree(0));
@@ -73,5 +74,7 @@ int main()
     checkCudaCall(cudaStreamDestroy(stream));
   } catch (std::exception &error) {
     std::cerr << error.what() << std::endl;
+    err = 1;
   }
+  return err;
 }

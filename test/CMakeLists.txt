@@ -1,0 +1,4 @@
+add_subdirectory(Common)
+add_subdirectory(CorrelatorTest)
+add_subdirectory(OpenCLCorrelatorTest)
+add_subdirectory(SimpleExample)

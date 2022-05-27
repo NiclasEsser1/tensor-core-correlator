@@ -1,17 +1,18 @@
-#include "test/Common/ComplexInt4.h"
-#include "test/Common/Record.h"
 #include "test/CorrelatorTest/CorrelatorTest.h"
-#include "util/ExceptionPropagator.h"
-#include "external/cuda-wrappers/cu/nvrtc.h"
 
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
 
+#include <nvrtc.hpp>
+
+#include "test/Common/ComplexInt4.h"
+#include "test/Common/Record.h"
+#include "util/ExceptionPropagator.h"
+
 #define GNU_SOURCE
 #include <link.h>
 #include <omp.h>
-
 
 CorrelatorTest::CorrelatorTest(const Options &options)
 :
@@ -223,17 +224,21 @@ template<typename SampleType, typename VisibilityType> void CorrelatorTest::veri
 
 int main(int argc, char *argv[])
 {
+  int err{0};
   try {
     cu::init();
     Options options(argc, argv);
     CorrelatorTest test(options);
   } catch (cu::Error &error) {
     std::cerr << "cu::Error: " << error.what() << std::endl;
+    err = 1;
   } catch (nvrtc::Error &error) {
     std::cerr << "nvrtc::Error: " << error.what() << std::endl;
+    err = 1;
   } catch (Options::Error &error) {
     std::cerr << "Options::Error: " << error.what() << std::endl;
+    err = 1;
   }
 
-  return 0;
+  return err;
 }

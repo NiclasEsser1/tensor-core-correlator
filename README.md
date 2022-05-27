@@ -65,4 +65,32 @@ Limitations:
 - the amount of samples over which is integrated) must be a multiple of 128 / `NR_BITS`
   (i.e., 32, 16, or 8 for 4-bit, 8-bit, or 16-bit input, respectively).
 
+## Building, testing, and installation
+
+To build and install the project, run:
+```bash
+cmake -S . -B build
+make -C build
+make -C build install
+```
+
+To install in a custom location, e.g. `~/.local`, run:
+```bash
+cmake -S . -B build -DCMAKE_INSTALL_PREFIX=$HOME/.local
+make -C build
+make -C build install
+```
+
+To compile and run the tests, run:
+```bash
+cmake -S. -B build -DBUILD_TESTING=ON
+make -C build
+make -C build test
+```
+The tests require a GPU.
+On the DAS cluster you can request a GPU node and run the tests with the command:
+```bash
+srun -N 1 -C gpunode --gres=gpu:1 make -C build test
+```
+
 Contact John Romein (romein@astron.nl) to report bugs/feedback

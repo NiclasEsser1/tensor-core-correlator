@@ -1,9 +1,9 @@
 #if !defined RECORD_H
 #define RECORD_H
 
-#include "test/Common/Config.h"
+#include <cu.hpp>
 
-#include "external/cuda-wrappers/cu/cu.h"
+#include "test/Common/Config.h"
 
 #if defined MEASURE_POWER
 #include <powersensor/NVMLPowerSensor.h>
