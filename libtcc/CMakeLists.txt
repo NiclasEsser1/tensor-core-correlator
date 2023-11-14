@@ -2,8 +2,14 @@
 add_library(tcc)
 # Add source files
 target_sources(tcc PRIVATE Correlator.cc CorrelatorKernel.cc Kernel.cc)
+
+set(tcc_inc
+  Correlator.h
+  CorrelatorKernel.h
+  Kernel.h
+)
 # Add public header
-set_target_properties(tcc PROPERTIES PUBLIC_HEADER Correlator.h)
+set_target_properties(tcc PROPERTIES PUBLIC_HEADER Correlator.h CorrelatorKernel.h Kernel.h)
 # Add includes
 target_include_directories(
   tcc PUBLIC $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>
@@ -24,3 +30,5 @@ install(
 # Embed CUDA code
 include(${CMAKE_SOURCE_DIR}/cmake/Utils.cmake)
 include_cuda_code(tcc kernel/TCCorrelator.cu)
+
+install(FILES ${tcc_inc} DESTINATION include/libtcc/)
